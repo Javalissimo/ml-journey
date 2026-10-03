@@ -1,0 +1,16 @@
+# Виртуальное окружение — восстанавливается из requirements.txt
+.venv/
+
+# Данные — большие и/или конфиденциальные
+data/
+
+# Секреты: токены, пароли, ключи API
+.env
+
+# Служебные файлы Python и Jupyter
+__pycache__/
+.ipynb_checkpoints/
+
+# Системный мусор Windows / macOS
+Thumbs.db
+.DS_Store
