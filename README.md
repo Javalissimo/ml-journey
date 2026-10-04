@@ -24,5 +24,5 @@ Python 3.12 · uv · Jupyter · NumPy · pandas · scikit-learn · CatBoost · L
 - `stage-4…6/` — deep learning, LLM (RAG-бот в Telegram), MLOps
 
 ## Прогресс
-- [x] Этап 0: окружение, Git
+- [] Этап 0: окружение, Git
 - [ ] Этап 1: Python и данные
