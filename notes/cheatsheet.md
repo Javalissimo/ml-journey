@@ -7,6 +7,9 @@
 def get_total(o):
     return o["total"]
 Пример: sorted_order = sorted(orders, key=lambda o: o['city'])
+Сортировка по городу и по сумме заказа(убавание) pprint.pprint(sorted(orders, key=lambda o: (o['city'], -o['total'])))
+
+
 
 - comprehension: Взять поле из словаря: ids = [o['order_id'] for o in sorted_order]
 взять ключ и значение: [{'order_id': o['order_id']} for o in sorted_order]
@@ -22,3 +25,5 @@ OR city IS NULL
 
 import sys                 # модуль с информацией о запущенном Python
 print(sys.executable)      # путь к python.exe, который сейчас выполняет ноутбук
+
+sorted создаёт новый список и возвращает его, а исходный не трогает. .sort() меняет исходный список на месте и возвращает None. Поэтому orders = orders.sort(...) затрёт список значением None
