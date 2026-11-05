@@ -12,7 +12,7 @@ def get_total(o):
 
 
 - comprehension: Взять поле из словаря: ids = [o['order_id'] for o in sorted_order]
-взять ключ и значение: [{'order_id': o['order_id']} for o in sorted_order]
+собрать новый список словарей: [{'order_id': o['order_id']} for o in sorted_order]
 
 - precision: Из тех кого модель отобрала КАКАЯ ДОЛЯ угадана (отобрала 40, из них ушло 20 -> 50%) 
  accuracy: Доля правильных ответов СРЕДИ ВСЕХ клиентов 
@@ -30,10 +30,9 @@ sorted создаёт новый список и возвращает его, а
 
 ## 04.11 — функции
 
-UnboundLocalError (присваивание в функции делает имя локальным: читать глобальное можно, присваивать нельзя)
+
 *args → tuple (порядок), **kwargs → dict;
-"""
-def convert_record(record: dict, mapping: dict, **defaults) -> tuple[dict, list]: 
+```def convert_record(record: dict, mapping: dict, **defaults) -> tuple[dict, list]: 
     missing_fields = []
     new_record = {}
     for old_key, value in record.items():
@@ -48,4 +47,32 @@ def convert_record(record: dict, mapping: dict, **defaults) -> tuple[dict, list]
             new_record[key] = default_value    
     
     return new_record, missing_fields
-"""
+```
+## 05.11
+Python видит присваивание total = 5 в функции → имяtotal локальное во всей функции → строка print(total) читает пустую локальную → UnboundLocalError.
+Пример:
+```total = 100
+def f2():
+    print(total)
+    total = 5
+```
+```def add_item(item, items=[]):
+    items.append(item)
+    return items
+
+print(add_item('a'))
+print(add_item('b'))
+```
+при такой записи список создается когда питон читает функцию, и потом в этот список все добавляется. Правильно вот так:
+```def add_item(item, items=None):
+    if items is None:
+        items = []
+    items.append(item)
+    return items
+```
+Порядок выполнения в SQL FROM → WHERE → SELECT → ORDER BY → LIMIT
+
+Рецепт скобок: [ ] даёт список, { : } словарь, { } множество.
+ids = [o['id'] for o in orders if o['total'] > 1000]
+
+Если от модели требуется "Да" или "Нет" то это бинарная классификация
