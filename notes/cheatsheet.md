@@ -31,8 +31,9 @@ sorted создаёт новый список и возвращает его, а
 ## 04.11 — функции
 
 
-*args → tuple (порядок), **kwargs → dict;
-```def convert_record(record: dict, mapping: dict, **defaults) -> tuple[dict, list]: 
+`*args` → tuple (порядок), `**kwargs` → dict;
+```python
+def convert_record(record: dict, mapping: dict, **defaults) -> tuple[dict, list]: 
     missing_fields = []
     new_record = {}
     for old_key, value in record.items():
@@ -49,14 +50,16 @@ sorted создаёт новый список и возвращает его, а
     return new_record, missing_fields
 ```
 ## 05.11
-Python видит присваивание total = 5 в функции → имяtotal локальное во всей функции → строка print(total) читает пустую локальную → UnboundLocalError.
+Python видит присваивание total = 5 в функции → имя total локальное во всей функции → строка print(total) читает пустую локальную → UnboundLocalError.
 Пример:
-```total = 100
+```python
+total = 100
 def f2():
     print(total)
     total = 5
 ```
-```def add_item(item, items=[]):
+```python
+def add_item(item, items=[]):
     items.append(item)
     return items
 
@@ -64,15 +67,63 @@ print(add_item('a'))
 print(add_item('b'))
 ```
 при такой записи список создается когда питон читает функцию, и потом в этот список все добавляется. Правильно вот так:
-```def add_item(item, items=None):
+```python
+def add_item(item, items=None):
     if items is None:
         items = []
     items.append(item)
     return items
 ```
-Порядок выполнения в SQL FROM → WHERE → SELECT → ORDER BY → LIMIT
+
 
 Рецепт скобок: [ ] даёт список, { : } словарь, { } множество.
 ids = [o['id'] for o in orders if o['total'] > 1000]
 
 Если от модели требуется "Да" или "Нет" то это бинарная классификация
+
+
+## 06.11
+```
+Какой ответ ожидается	Тип задачи
+Число	                регрессия (regression)
+2 метки («да / нет»)	бинарная классификация (binary classification)
+3 и больше меток	    многоклассовая классификация (multiclass classification)
+Меток нет, ищем группы	кластеризация (clustering)
+```
+
+
+Агрегатные функции SQL 
+```
+SQL	                        Что делает	                             Как в Excel
+COUNT(*)	                число строк	                             число строк в таблице
+COUNT(столбец)	            число строк, где в столбце не NULL	     СЧЁТЗ
+SUM(столбец)	            сумма	                                 СУММ
+AVG(столбец)	            среднее	                                 СРЗНАЧ
+MIN(столбец) / MAX(столбец)	минимум / максимум	                     МИН / МАКС
+```
+
+Порядок выполнения SQL
+```
+1. FROM       — взять таблицу
+2. WHERE      — отобрать строки
+3. GROUP BY   — сложить в стопки
+4. HAVING     — отобрать стопки
+5. SELECT     — посчитать и показать столбцы
+6. ORDER BY   — отсортировать
+7. LIMIT      — обрезать
+```
+
+WHERE фильтрует отдельные строки до их группировки
+HAVING фильтрует уже сформированные группы после применения GROUP BY
+COUNT(*) отличается от COUNT(city) тем, что он считает NULL
+COUNT(*) даёт 40, COUNT(city) даёт 37, потому что у 3 клиентов city равен NULL
+
+Поиск дубликатов делается связкой GROUP BY + HAVING: сгруппировать по полю и оставить группы больше одной строки.
+
+
+SELECT email, COUNT(*) AS cnt
+FROM customers
+GROUP BY email
+HAVING COUNT(*) > 1;
+
+Чтобы убрать группу с NULL нужно добавить WHERE email IS NOT NULL
