@@ -65,3 +65,13 @@ HAVING COUNT(*) > 1;
 /* ⚠️ Ловушка: клиенты без email (у нас их 5) образуют свою группу NULL. 
 Она попадёт в результат с cnt = 5, хотя это не дубликаты, а пустые значения. 
 Чтобы их убрать, добавь WHERE email IS NOT NULL. Он выполнится до группировки. */
+
+SELECT segment, count(*) AS clients_count  -- 07.11 тренировка
+FROM CUSTOMERS 
+GROUP BY segment
+
+SELECT customer_id, count(status)   -- 07.11 тренировка
+FROM ORDERS
+WHERE status = 'отменён'
+GROUP BY CUSTOMER_ID 
+HAVING count(status) > 1;

@@ -127,3 +127,13 @@ GROUP BY email
 HAVING COUNT(*) > 1;
 
 Чтобы убрать группу с NULL нужно добавить WHERE email IS NOT NULL
+
+в WHERE мы пишем условие которое мы видим в одной строке
+в HAVING мы пишем условие которое видно только у группы строк
+```SQL
+SELECT customer_id, count(status)   
+FROM ORDERS
+WHERE status = 'отменён' --смотрим по одной строке
+GROUP BY CUSTOMER_ID 
+HAVING count(status) > 1; --смотрим по группе
+```
