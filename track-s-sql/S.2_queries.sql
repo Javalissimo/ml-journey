@@ -75,3 +75,52 @@ FROM ORDERS
 WHERE status = 'отменён'
 GROUP BY CUSTOMER_ID 
 HAVING count(status) > 1;
+
+-- 08.11 S.2 ч.2
+-- шаг 5: группировка по двум столбцам (17 строк, сумма 40)
+SELECT city, segment, COUNT(*) AS customers_count
+FROM customers
+GROUP BY city, segment
+ORDER BY city, segment;
+
+-- заказы по годам и статусам (5 строк, сумма 177)
+SELECT SUBSTR(order_date, 1, 4) AS order_year, status, COUNT(*) AS orders_count
+FROM orders
+GROUP BY SUBSTR(order_date, 1, 4), status
+ORDER BY order_year, status;
+
+-- шаг 6: топ клиентов по числу заказов (13 -> 11, затем 4 клиента по 8)
+SELECT customer_id, COUNT(*) AS orders_count
+FROM orders
+GROUP BY customer_id
+ORDER BY orders_count DESC
+LIMIT 6;
+
+-- топ-3 заказа по сумме: 83 / 156 / 117
+SELECT order_id, SUM(qty * price) AS order_total
+FROM order_items
+GROUP BY order_id
+ORDER BY order_total DESC
+LIMIT 3;
+
+-- шаг 7: строки / выручка / средняя строка: 458 / 176475 / 385.3
+SELECT COUNT(*) AS lines_count, SUM(qty * price) AS revenue, AVG(qty * price) AS avg_line
+FROM order_items;
+
+-- средний чек: 997 (целочисленное деление) и 997.03
+SELECT
+    SUM(qty * price) / COUNT(DISTINCT order_id) AS avg_check_int,
+    ROUND(SUM(qty * price) * 1.0 / COUNT(DISTINCT order_id), 2) AS avg_check
+FROM order_items;
+
+-- шаг 8: COALESCE (4 строки, сумма 177)
+SELECT COALESCE(promo_code, 'без промокода') AS promo, COUNT(*) AS orders_count
+FROM orders
+GROUP BY COALESCE(promo_code, 'без промокода')
+ORDER BY orders_count DESC;
+
+-- 'не указан' — 3, 'казань' — отдельная группа (1)
+SELECT COALESCE(city, 'не указан') AS city_clean, COUNT(*) AS customers_count
+FROM customers
+GROUP BY COALESCE(city, 'не указан')
+ORDER BY customers_count DESC;
