@@ -124,3 +124,27 @@ SELECT COALESCE(city, 'не указан') AS city_clean, COUNT(*) AS customers_
 FROM customers
 GROUP BY COALESCE(city, 'не указан')
 ORDER BY customers_count DESC;
+
+
+-- 10.11
+
+SELECT
+	METHOD,
+	count(*) AS payments_count, --Число оплат
+	sum(amount) AS total_amount, --сумма
+	round(avg(amount), 2) AS avg_payment --средний платеж
+FROM
+	PAYMENTS P
+GROUP BY
+	METHOD
+ORDER BY
+	TOTAL_AMOUNT DESC
+
+SELECT  --средний чек по каждому способу оплаты
+    method,
+    count(*) AS total_count,
+    SUM(amount) * 1.0 / COUNT(DISTINCT order_id)  AS avg_check
+FROM payments
+GROUP BY METHOD
+HAVING TOTAL_COUNT >20
+ORDER BY avg_check DESC
