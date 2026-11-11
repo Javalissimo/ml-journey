@@ -148,3 +148,30 @@ FROM payments
 GROUP BY METHOD
 HAVING TOTAL_COUNT >20
 ORDER BY avg_check DESC
+
+
+-- 11.11 задача 5
+SELECT
+	count(*) AS total_str,
+	count(DISTINCT order_id),
+	count(payment_id) AS total_payments,
+	count(order_id) AS total_orders,
+	count(amount) AS total_amount,
+	count(paid_at) AS paud_count,
+	count(METHOD) AS memthod_count,
+	min(paid_at) AS start_paid_date,
+	max(paid_at) AS end_paid_date,
+	min(amount) AS min_amount,
+	max(amount) AS max_amount,
+	sum(amount) AS sum_amount
+FROM
+	payments
+
+SELECT
+	METHOD,
+	count(amount) AS total_orders,
+	sum(amount) AS sum_amount
+FROM
+	payments
+GROUP BY
+	METHOD
