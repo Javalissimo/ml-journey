@@ -175,3 +175,12 @@ FROM
 	payments
 GROUP BY
 	METHOD
+
+
+SELECT  -- 12.11 тест
+	METHOD,
+	max(paid_at) AS LAST_pay
+FROM
+	payments
+GROUP BY
+	METHOD;
