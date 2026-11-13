@@ -234,3 +234,85 @@ Python ищет модули в папке ноутбука, в стандарт
 Модуль импортируется один раз за сессию: поменял .py → Restart Kernel.
 try / except ТипОшибки позволяет программе пережить ожидаемую ошибку. Тип бери из последней строки traceback.
 Голый except: прячет опечатки и баги. Лови только то, что ожидаешь.
+
+
+## 13.11
+
+1.1.3. Пути к файлам: pathlib
+
+Абсолютный (absolute path) — полный путь от диска: C:\Projects\ml-journey\data\sales.csv.
+Относительный (relative path) — путь от рабочей папки (working directory): data/sales.csv. В VS Code рабочая папка ноутбука — та, где он лежит.
+
+```
+Основные операции
+Код	                                                  Что делает	                        Пример результата
+Path.cwd()	                                      текущая рабочая папка	            C:\Projects\ml-journey\stage-1-python
+p.parent	                                      папка на уровень выше	            C:\Projects\ml-journey
+folder / 'sales.csv'	                          склеить путь (это не деление!)	    ...\data\sales.csv
+p.exists()	                                      существует ли файл или папка	    True / False
+p.is_file() / p.is_dir()	                      это файл? это папка?	            True / False
+p.name	                                          имя с расширением	                sales.csv
+p.stem                              	          имя без расширения	                sales
+p.suffix	                                      расширение	                        .csv
+folder.glob('*.csv')	                          найти файлы по маске	            все .csv в папке
+folder.mkdir(parents=True, exist_ok=True)	      создать папку, если её нет 	    —
+```
+```python
+Path.cwd()
+```
+выведет  c:/Projects/ml-journey/stage-1-python
+```python
+Path.cwd().parent
+```
+Выведет c:/Projects/ml-journey
+что такое Path.cwd().parent / 'data'
+
+Разберём по кусочкам, слева направо. Каждый шаг даёт новый путь:
+
+```
+Шаг	            Код	                Что получилось
+1	            Path.cwd()	        C:\Projects\ml-journey\stage-1-python (где лежит ноутбук)
+2	            .parent	            C:\Projects\ml-journey (подняться на уровень вверх)
+3	            / 'data'	        C:\Projects\ml-journey\data (зайти внутрь папки data)
+```
+Слева от / всегда объект Path, то есть папка.
+Справа — строка, имя того, что лежит внутри.
+Сам / здесь не деление, а «зайти внутрь». Это как \ в адресной строке Проводника.
+
+/ работает только потому, что слева стоит Path. Если с обеих сторон строки ('data' / 'sales.csv'), будет ошибка.
+
+Чтение и запись файлов: open / with и CSV
+
+```python
+with open(путь, 'r', encoding='utf-8') as f:   # открыли, f — «ручка» файла
+    text = f.read()                            # работаем внутри отступа
+# здесь файл уже закрыт
+```
+```
+Режим	            Что делает	                ⚠️ Опасность
+'r' (по умолчанию)	читать	                    файла нет → FileNotFoundError
+'w'	                записать	                стирает старое содержимое без вопросов
+'a'	                дописать в конец	            —
+```
+
+encoding='utf-8' — всегда. На Windows Python по умолчанию открывает файлы в кодировке cp1251. Русский текст из UTF-8-файла тогда превращается в «кракозябры» или падает с UnicodeDecodeError
+
+CSV в Python
+
+- `csv.DictReader(f)` читает CSV в список словарей: первая строка файла = названия столбцов, одна строка = один словарь.
+- После чтения ВСЕ значения — строки (`'1200'`, `'101'`). Числа делаем сами: `int(...)`, `parse_amount(...)`.
+- Пустая ячейка = `''`, а не `None`. При записи `None` тоже станет пустой ячейкой → разница между «пусто» и «битое» теряется.
+- Писать CSV — только через `csv.DictWriter` (`writeheader()` + `writerows()`). `str(список)` даёт одну строку текста, а не таблицу.
+- Если ключа нет в словаре, `DictWriter` молча пишет пустую ячейку (так у меня чуть не потерялся `order_id`).
+- В `open` для CSV всегда `encoding='utf-8', newline=''`.
+
+```python
+clean_rows = [{'order_id': row['order_id'],
+               'city': normalize_city(row['city']),
+               'amount': parse_amount(row['amount'])} for row in rows]
+
+with open(clean_path, 'w', encoding='utf-8', newline='') as f:
+    writer = csv.DictWriter(f, fieldnames=['order_id', 'city', 'amount'])
+    writer.writeheader()
+    writer.writerows(clean_rows)
+```
