@@ -316,3 +316,108 @@ with open(clean_path, 'w', encoding='utf-8', newline='') as f:
     writer.writeheader()
     writer.writerows(clean_rows)
 ```
+
+
+## 15.11
+
+JSON: сохранить и прочитать структуру
+Зачем это нужно
+
+CSV — это плоская таблица: строки × столбцы, и все значения — строки. Но бывают данные, которые в таблицу не ложатся:
+отчёт о проблемах: список словарей, у каждого свои поля;
+настройки, например маппинг полей {'ФИО': 'full_name', …};
+ответ API.
+
+Как Python-объекты превращаются в JSON
+
+```
+Python	                   JSON (в файле)	            Вернётся после чтения
+dict {'a': 1}	           объект {"a": 1}	            dict
+list [1, 2]	               массив [1, 2]	            list
+tuple (1, 2)	           массив [1, 2]	            ⚠️ list (кортеж не сохраняется)
+str                         'Казань'	                "Казань", только двойные кавычки	str
+int / float	               число 1200 / 12.5	        int / float ✅ тип сохраняется
+True / False	           true / false	                True / False
+None	                   null	                        None ✅
+ключ-число                 {101: 'x'}	                {"101": "x"}	⚠️ ключ станет строкой '101'
+
+
+Четыре функции модуля json
+Функция         	    Что делает	            Мнемоника
+json.dump(obj, f)	    объект → в файл	        dump — «выгрузить»
+json.load(f)	        из файла → объект   	load — «загрузить»
+json.dumps(obj)     	объект → строка	        s = string
+json.loads(s)	        строка → объект	        s = string
+```
+```python
+import json
+from pathlib import Path
+
+DATA_DIR = Path.cwd().parent / 'data'
+json_path = DATA_DIR / 'example.json'
+
+report = [
+    {'order_id': '103', 'field': 'amount', 'raw_value': 'abc', 'reason': 'не число'},
+]
+
+# запись: сначала объект, потом файл
+with open(json_path, 'w', encoding='utf-8') as f:
+    json.dump(report, f, ensure_ascii=False, indent=2)
+
+# чтение
+with open(json_path, encoding='utf-8') as f:
+    loaded = json.load(f)
+
+print(type(loaded))          # <class 'list'>
+print(loaded[0]['reason'])   # не число
+```
+JSON — текстовый формат для вложенных данных (словари, списки); стандарт API и конфигов.
+dump / load — файл, dumps / loads — строка (s = string).
+Запись: json.dump(obj, f, ensure_ascii=False, indent=2) в open(…, 'w', encoding='utf-8').
+Типы сохраняются (int, None → null → None), но кортеж вернётся списком, а ключи станут строками.
+В JSON только двойные кавычки.
+
+
+в CSV '' и None записываются одинаковой пустой ячейкой, при чтении обе станут ''
+В Json пустая строка останется пустой '' -> "" а None превратится в null. 
+null пишется без кавычек
+
+```python
+s = json.dumps({'city': '', 'amount': None, 'text': 'null'})
+print(s)
+back = json.loads(s)
+print(back)
+print(back['amount'] is None, back['text'] is None)
+```
+вывод
+{"city": "", "amount": null, "text": "null"}
+{'city': '', 'amount': None, 'text': 'null'}
+True False
+
+Порядок работы Try except в функциях
+
+```python
+def safe_amount(value):
+    try:
+        result = float(value)
+    except ValueError:
+        print('ошибка')
+        return None
+    else:
+        print('ок')
+        return result
+    finally:
+        print('готово')
+
+print(safe_amount('12.5'))
+print(safe_amount('abc'))
+```
+вывод
+ок
+готово
+12.5
+ошибка
+готово
+None
+
+else срабатывает если все хорошо, finally срабатывает всегда. Все из конструкции Try/except/else/finally срабатывает раньше returnа
