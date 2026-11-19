@@ -579,3 +579,29 @@ finally:
 
 В else добавляю то, что будет выполняться если ошибки не было.
 путь для функции лучше передавать в аргументах, а не делать внутри
+
+## 19.11
+
+```python
+report_path = DATA_DIR / 'reports' / 'problems_v2.json'
+report_path.parent.mkdir(exist_ok=True) 
+with open(report_path, 'w', encoding='utf-8') as f:
+    json.dump(probs, f, ensure_ascii=False, indent=2)
+```
+.parent.mkdir() создаёт папку для файла; 'w' создаёт только файл, а папку — нет
+Если путь уже есть, то будет ошибка, если не добавить exist_ok=True (exist_ok=True говорит, что если путь уже есть, то не создавай ничего и иди дальше)
+
+```python
+def summarize_problems(problems: list[dict], key: str = 'reason') -> dict[str, int]:
+    """считает, сколько проблем каждого вида. Возвращает словарь {Проблема: количество}
+    Вид — это значение по ключу key: по умолчанию 'reason', но можно передать 'field'"""        
+    counts = {}
+    for problem in problems:
+        counts[problem[key]] = counts.get(problem[key], 0) + 1     
+    return counts
+```
+подсчёт по видам через словарь. тут нам заранее не надо знать виды ошибок. Все считается через counts[problem[key]] = counts.get(problem[key],0) + 1 
+counts.get(problem[key],0) + 1 при первом проходе не выдает ошибку, а записывает 1 в значение.
+
+В SQL если мы просто делим a /b то будет деление целочисленное, только если оба числа целые; именно поэтому мы пишем * 1.0
+Если используетс avg(столбец), то тут уже будет дробное деление avg(amount) = 2.4
